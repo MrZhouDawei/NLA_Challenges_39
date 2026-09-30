@@ -4,7 +4,7 @@
 #ifndef TEAM39_HELPER_H
 #define TEAM39_HELPER_H
 
-using namespaceEigen;
+using namespace Eigen;
 
 inline bool isSymmetric( MatrixXd M){
         return M.isApprox(M.transpose());
