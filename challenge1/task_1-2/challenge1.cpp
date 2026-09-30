@@ -8,6 +8,7 @@
 #include "../resources/stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../resources/stb_image_write.h"
+#include "../resources/team39_helper.h"
 
 using namespace Eigen;
 
