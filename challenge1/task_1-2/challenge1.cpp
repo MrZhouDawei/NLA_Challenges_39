@@ -47,7 +47,8 @@ int main(int argc, char* argv[]) {
   // ------------------------------- TASK2 -----------------------------------------
 
   // NOISY matix
-  std::mt19937 gen;
+  std::random_device rd;
+  std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dist(-50.0, 50.0);
 
   MatrixXd noisy(height, width);
@@ -70,9 +71,80 @@ int main(int argc, char* argv[]) {
 
   // ---------------------------------- TASK3 --------------------------------------
   
-  // VectorXd v = 
+  // create v from the original image
+  const long size_v = original.col() * original.col();
+  VectorXd v(size_v);
+  for (int i = 0; i < size_v; i++){
+	  v(i) = static_cast<double>(original[i]);
+  }
+
+  // create w form the noisy image
+  const long sze_w = noisy.col() * noisy.row();
+  VectorXd w(size_w);
+  for (int i = 0; i < size_w; i++){
+	  w(i) = static_cast<double>(noisy[i]);
+  }
+
+  // control the size of the vectors
+  if (v.size() != size_v || w.size() != size_w) {
+        std::cout << "Convertion matrix - vector failed." << endl;
+	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << endl;
+	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << endl;
+    }
+  
+  // compute the euclidean norm
+  double norm_v = getArrayEuclideanNorm(v);
+  double norm_w = getArrayEuclideanNorm(w);
 
 
+
+  // -------------------------------------- TASK4 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK5 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK6 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK7 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK8 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK9 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK10 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK11 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK12 --------------------------------------
+  
+  
+  
+  
+  // -------------------------------------- TASK13 --------------------------------------
+  
 
 
 
