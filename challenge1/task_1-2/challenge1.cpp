@@ -72,24 +72,19 @@ int main(int argc, char* argv[]) {
   // ---------------------------------- TASK3 --------------------------------------
   
   // create v from the original image
-  const long size_v = original.col() * original.col();
-  VectorXd v(size_v);
-  for (int i = 0; i < size_v; i++){
-	  v(i) = static_cast<double>(original[i]);
-  }
+  const long size_v = original.cols() * original.rows();
+  VectorXd v = original.reshaped();
 
   // create w form the noisy image
-  const long sze_w = noisy.col() * noisy.row();
-  VectorXd w(size_w);
-  for (int i = 0; i < size_w; i++){
-	  w(i) = static_cast<double>(noisy[i]);
-  }
+  const long size_w = noisy.cols() * noisy.rows();
+  VectorXd w = noisy.reshaped();
 
   // control the size of the vectors
   if (v.size() != size_v || w.size() != size_w) {
         std::cout << "Convertion matrix - vector failed." << endl;
 	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << endl;
 	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << endl;
+	return 1;
     }
   
   // compute the euclidean norm
@@ -130,13 +125,37 @@ int main(int argc, char* argv[]) {
   
   // -------------------------------------- TASK10 --------------------------------------
   
+  Matrix3d H3;
+  H3 << -1.0,  0.0,  1.0,
+      -2.0,  0.0,  2.0,
+      -1.0,  0.0,  1.0; 
+
+  SparseMatrix<double> A3 = matrix_convolution(.....);
+  std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3) << endl;
   
-  
-  
+
   // -------------------------------------- TASK11 --------------------------------------
   
-  
-  
+  VectorXd matrix_3_product = A3 * v;
+
+  MatrixXd matrix_3(height, width);
+  for (int i = 0; i<height; i++){
+	  int row = i * width;
+	  for (int j = 0, j < width; j++){
+		  double val = matrix_3_product[row+j];
+		  matrix_3(i,j) = std::min(255.0,std::max(0.0,val));
+	  }
+  }
+
+  //save image
+  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> matrix_3_bytes(height, width);
+  for (int i = 0; i < height; i++) {
+	  for (int j = 0; j < width; j++) {
+		  matrix_3_bytes(i,j) = static_cast<unsigned char>(std::round(matrix_3(i,j)));
+	  }
+  }
+  stbi_write_png(".../output/deer_filtered_3.png", width, height, 1, matrix_3_bytes.data(),width);
+
   
   // -------------------------------------- TASK12 --------------------------------------
   
