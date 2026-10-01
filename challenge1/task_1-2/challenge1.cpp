@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
   
   // compute the euclidean norm
   double norm_v = getArrayEuclideanNorm(v);
-  double norm_w = getArrayEuclideanNorm(w);
+  // double norm_w = getArrayEuclideanNorm(w);
 
 
 
