@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
   
   // compute the euclidean norm
   double norm_v = getArrayEuclideanNorm(v);
+  std::cout << "Euclidean norm of v: " << norm_v << std::endl;
   // double norm_w = getArrayEuclideanNorm(w);
 
 
@@ -130,7 +131,7 @@ int main(int argc, char* argv[]) {
       -2.0,  0.0,  2.0,
       -1.0,  0.0,  1.0; 
 
-  SparseMatrix<double> A3 = matrix_convolution(.....);
+  SparseMatrix<double> A3 = matrix_convolution(H3, height, width);
   std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3) << endl;
   
 
