@@ -73,11 +73,11 @@ int main(int argc, char* argv[]) {
   
   // create v from the original image
   const long size_v = original.cols() * original.rows();
-  VectorXd v = original.reshaped();
+  VectorXd v = original.reshaped<RowMajor>();
 
   // create w form the noisy image
   const long size_w = noisy.cols() * noisy.rows();
-  VectorXd w = noisy.reshaped();
+  VectorXd w = noisy.reshaped<RowMajor>();
 
   // control the size of the vectors
   if (v.size() != size_v || w.size() != size_w) {
@@ -154,16 +154,31 @@ int main(int argc, char* argv[]) {
 		  matrix_3_bytes(i,j) = static_cast<unsigned char>(std::round(matrix_3(i,j)));
 	  }
   }
-  stbi_write_png(".../output/deer_filtered_3.png", width, height, 1, matrix_3_bytes.data(),width);
+  stbi_write_png("../output/deer_filtered_3.png", width, height, 1, matrix_3_bytes.data(),width);
 
   
   // -------------------------------------- TASK12 --------------------------------------
   
-  
-  
+  SparseMatrix<double> I_matrix(A3.rows(), A3.cols());
+  I_matrix.setIdentity();
+
+  double tol = 1.0e-10;
+
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DA finire
   
   // -------------------------------------- TASK13 --------------------------------------
   
+
+  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> y_matrix(height, width);
+  for (int i = 0; i < height; i++) {
+	  int row = i * width;
+	  for (int j = 0; j < width; j++){
+		  double val = y_sol[row+j];
+		  double y_matrix_val = std::max(0.0, std::min(255.0, val));
+		  y_matrix(i,j) = static_cast<unsigned char>(std::round(y_matrix_val));
+	  }
+  }
+  stbi_write_png("../output/deer_filtered_3_bis.png", width, height, 1, y_matrix.data(), width);
 
 
 
@@ -172,13 +187,5 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
-
-
-
-
-
-
-
-
 
 
