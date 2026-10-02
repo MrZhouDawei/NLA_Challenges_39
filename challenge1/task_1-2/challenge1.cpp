@@ -84,6 +84,9 @@ int main(int argc, char* argv[]) {
         std::cout << "Convertion matrix - vector failed." << std::endl;
 	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << std::endl;
 	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << std::endl;
+        std::cout << "Convertion matrix - vector failed." << std::endl;
+	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << std::endl;
+	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << std::endl;
 	return 1;
     }
   
@@ -133,6 +136,7 @@ int main(int argc, char* argv[]) {
 
   SparseMatrix<double> A3 = matrix_convolution(H3, height, width);
   std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3, 1e-12) << std::endl;
+  std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3, 1e-12) << std::endl;
   
 
   // -------------------------------------- TASK11 --------------------------------------
@@ -142,6 +146,7 @@ int main(int argc, char* argv[]) {
   MatrixXd matrix_3(height, width);
   for (int i = 0; i<height; i++){
 	  int row = i * width;
+	  for (int j = 0; j < width; j++){
 	  for (int j = 0; j < width; j++){
 		  double val = matrix_3_product[row+j];
 		  matrix_3(i,j) = std::min(255.0,std::max(0.0,val));
@@ -171,17 +176,8 @@ int main(int argc, char* argv[]) {
   
   /*
   
-  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> y_matrix(height, width);
-  for (int i = 0; i < height; i++) {
-	  int row = i * width;
-	  for (int j = 0; j < width; j++){
-		  double val = y_sol[row+j];
-		  double y_matrix_val = std::max(0.0, std::min(255.0, val));
-		  y_matrix(i,j) = static_cast<unsigned char>(std::round(y_matrix_val));
-	  }
-  }
-  stbi_write_png("../output/deer_filtered_3_bis.png", width, height, 1, y_matrix.data(), width);
-
+  /*
+  
   Matrix<unsigned char, Dynamic, Dynamic, RowMajor> y_matrix(height, width);
   for (int i = 0; i < height; i++) {
 	  int row = i * width;
