@@ -182,6 +182,17 @@ int main(int argc, char* argv[]) {
   }
   stbi_write_png("../output/deer_filtered_3_bis.png", width, height, 1, y_matrix.data(), width);
 
+  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> y_matrix(height, width);
+  for (int i = 0; i < height; i++) {
+	  int row = i * width;
+	  for (int j = 0; j < width; j++){
+		  double val = y_sol[row+j];
+		  double y_matrix_val = std::max(0.0, std::min(255.0, val));
+		  y_matrix(i,j) = static_cast<unsigned char>(std::round(y_matrix_val));
+	  }
+  }
+  stbi_write_png("../output/deer_filtered_3_bis.png", width, height, 1, y_matrix.data(), width);
+
 
   */
 
