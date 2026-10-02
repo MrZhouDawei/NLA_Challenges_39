@@ -81,9 +81,9 @@ int main(int argc, char* argv[]) {
 
   // control the size of the vectors
   if (v.size() != size_v || w.size() != size_w) {
-        std::cout << "Convertion matrix - vector failed." << endl;
-	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << endl;
-	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << endl;
+        std::cout << "Convertion matrix - vector failed." << std::endl;
+	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << std::endl;
+	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << std::endl;
 	return 1;
     }
   
@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
       -1.0,  0.0,  1.0; 
 
   SparseMatrix<double> A3 = matrix_convolution(H3, height, width);
-  std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3) << endl;
+  std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3, 1e-12) << std::endl;
   
 
   // -------------------------------------- TASK11 --------------------------------------
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
   MatrixXd matrix_3(height, width);
   for (int i = 0; i<height; i++){
 	  int row = i * width;
-	  for (int j = 0, j < width; j++){
+	  for (int j = 0; j < width; j++){
 		  double val = matrix_3_product[row+j];
 		  matrix_3(i,j) = std::min(255.0,std::max(0.0,val));
 	  }
@@ -169,7 +169,8 @@ int main(int argc, char* argv[]) {
   
   // -------------------------------------- TASK13 --------------------------------------
   
-
+  /*
+  
   Matrix<unsigned char, Dynamic, Dynamic, RowMajor> y_matrix(height, width);
   for (int i = 0; i < height; i++) {
 	  int row = i * width;
@@ -182,7 +183,7 @@ int main(int argc, char* argv[]) {
   stbi_write_png("../output/deer_filtered_3_bis.png", width, height, 1, y_matrix.data(), width);
 
 
-
+  */
 
 
 
