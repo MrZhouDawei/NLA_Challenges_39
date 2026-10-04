@@ -130,15 +130,34 @@ int main(int argc, char* argv[]) {
   stbi_write_png("../output/deer_smoothing.png",width,height,1,smoothing_bytes.data(),width);
 
   // -------------------------------------- TASK6 --------------------------------------
-  
-  
-  
-  
+
+  // get A2 using convolution operation
+  Matrix3d Hsh1;
+  Hsh1 <<  0.0, -3.0,  0.0,
+          -1.0,  9.0, -3.0,
+           0.0, -1.0,  0.0;
+
+  SparseMatrix<double> A2 = matrix_convolution(Hsh1, height, width);
+  cout << "A2 number of non zero entries: " << A2.nonZeros() << std::endl;
+  std::cout << "Is the matrix A2 symmetric? " << isSymmetric(A2, 1e-12) << std::endl;
+
+
   // -------------------------------------- TASK7 --------------------------------------
-  
-  
-  
-  
+
+  // apply sharpening filter to the original image
+  VectorXd sharpening = A2 * v;
+
+  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> sharpening_bytes(height, width);
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      double val = sharpening[i * width + j];
+      val = std::min(255.0, std::max(0.0, val));
+      sharpening_bytes(i, j) = static_cast<unsigned char>(std::round(val));
+    }
+  }
+  stbi_write_png("../output/deer_sharpening.png", width, height, 1, sharpening_bytes.data(), width);
+
+
   // -------------------------------------- TASK8 --------------------------------------
   
   
