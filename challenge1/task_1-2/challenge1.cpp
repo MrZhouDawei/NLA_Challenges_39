@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <iostream>
 #include <cstdlib>
 #include <random>
@@ -11,6 +12,7 @@
 #include "../resources/team39_helper.h"
 
 using namespace Eigen;
+using namespace std;
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -84,9 +86,6 @@ int main(int argc, char* argv[]) {
         std::cout << "Convertion matrix - vector failed." << std::endl;
 	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << std::endl;
 	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << std::endl;
-        std::cout << "Convertion matrix - vector failed." << std::endl;
-	std::cout << "Vector v size: " << v.size() << ", expected size: " << size_v << std::endl;
-	std::cout << "Vector w size: " << w.size() << ", expected size: " << size_w << std::endl;
 	return 1;
     }
   
@@ -99,14 +98,37 @@ int main(int argc, char* argv[]) {
 
   // -------------------------------------- TASK4 --------------------------------------
   
-  
+  // get A1 using convolution operation
+  Matrix3d Hav1;
+  Hav1 << 1.0/12.0,  1.0/12.0,  1.0/12.0,
+      1.0/12.0,  1.0/3.0,  1.0/12.0,
+      1.0/12.0,  1.0/12.0,  1.0/12.0; 
+  SparseMatrix<double> A1;
+
+  A1 = matrix_convolution(Hav1,height,width);
+
+  // print A1 non zero entries
+  cout << "A1 number of non zero entries: " << A1.nonZeros() << std::endl;
   
   
   // -------------------------------------- TASK5 --------------------------------------
   
+  // apply smoothering filter
+    VectorXd smoothing = A1*w;
+
+    Matrix<unsigned char, Dynamic, Dynamic, RowMajor> smoothing_bytes(height,width);
+    for(int i=0; i < height; i++){
+      for(int j=0; j < width; j++) {
+        double val = smoothing[i * width + j];
+        // Applica il clamping tra 0 e 255
+        val = std::min(255.0, std::max(0.0, val));
+        smoothing_bytes(i, j) = static_cast<unsigned char>(std::round(val));
+      }
+    }
   
-  
-  
+  //load_image
+  stbi_write_png("../output/deer_smoothing.png",width,height,1,smoothing_bytes.data(),width);
+
   // -------------------------------------- TASK6 --------------------------------------
   
   
@@ -136,7 +158,6 @@ int main(int argc, char* argv[]) {
 
   SparseMatrix<double> A3 = matrix_convolution(H3, height, width);
   std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3, 1e-12) << std::endl;
-  std::cout << "Is the matrix A3 symmetric? " << isSymmetric(A3, 1e-12) << std::endl;
   
 
   // -------------------------------------- TASK11 --------------------------------------
@@ -147,10 +168,9 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i<height; i++){
 	  int row = i * width;
 	  for (int j = 0; j < width; j++){
-	  for (int j = 0; j < width; j++){
-		  double val = matrix_3_product[row+j];
-		  matrix_3(i,j) = std::min(255.0,std::max(0.0,val));
-	  }
+        double val = matrix_3_product[row+j];
+        matrix_3(i,j) = std::min(255.0,std::max(0.0,val));
+   }
   }
 
   //save image
@@ -173,8 +193,6 @@ int main(int argc, char* argv[]) {
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DA finire
   
   // -------------------------------------- TASK13 --------------------------------------
-  
-  /*
   
   /*
   
