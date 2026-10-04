@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
 		  matrix_3_bytes(i,j) = static_cast<unsigned char>(std::round(matrix_3(i,j)));
 	  }
   }
-  stbi_write_png("../output/deer_filtered_3.png", width, height, 1, matrix_3_bytes.data(),width);
+  stbi_write_png("../output/deer_sobel.png", width, height, 1, matrix_3_bytes.data(),width);
 
   
   // -------------------------------------- TASK12 --------------------------------------
@@ -204,28 +204,46 @@ int main(int argc, char* argv[]) {
   SparseMatrix<double> I_matrix(A3.rows(), A3.cols());
   I_matrix.setIdentity();
 
-  double tol = 1.0e-10;
+  SparseMatrix<double> AA = 4.0 * I_matrix + A3;
+  AA.makeCompressed();
 
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DA finire
+  double tol = 1.0e-10;
+  int max_iterations = 500;
+
+  BiCGSTAB<SparseMatrix<double>> bicgstab;
+  bicgstab.setMaxIterations(max_iterations);
+  bicgstab.setTolerance(tol);
+  bicgstab.compute(AA);
+
+  // controllo
+  if (bicgstab.info() != Success) {
+	  std::cout << "BiCGSTAB failed!!!" << std::endl;
+	  return 1;
+  }
+
+  VectorXd y_solution_12 = bicgstab.solve(w);
+
+  std::cout <<"Iteration count task 12 = " << bicgstab.iterations() <<" and the final residual is = " << bicgstab.error() << std::endl;
+
+  if (bicgstab.info() == NoConvergence) {
+    std::cout << "BiCGSTAB doesn't reach the convergence in " << max_iterations << " iterations!" << std::endl;
+  }
+
+  
+  
   
   // -------------------------------------- TASK13 --------------------------------------
-  
-  /*
   
   Matrix<unsigned char, Dynamic, Dynamic, RowMajor> y_matrix(height, width);
   for (int i = 0; i < height; i++) {
 	  int row = i * width;
 	  for (int j = 0; j < width; j++){
-		  double val = y_sol[row+j];
+		  double val = y_solution_12[row+j];
 		  double y_matrix_val = std::max(0.0, std::min(255.0, val));
 		  y_matrix(i,j) = static_cast<unsigned char>(std::round(y_matrix_val));
 	  }
   }
-  stbi_write_png("../output/deer_filtered_3_bis.png", width, height, 1, y_matrix.data(), width);
-
-
-  */
-
+  stbi_write_png("../output/deer_task_13.png", width, height, 1, y_matrix.data(), width);
 
 
   return 0;

@@ -45,6 +45,8 @@ inline SparseMatrix<double> matrix_convolution(const MatrixXd& H, int m, int n) 
 
         SparseMatrix<double> A(m * n, m * n);
         A.setFromTriplets(triplets.begin(), triplets.end());
+
+	A.makeCompressed();
         return A;
 }
 
