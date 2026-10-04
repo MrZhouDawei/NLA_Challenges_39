@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <iostream>
 #include <cstdlib>
 #include <random>
@@ -11,6 +12,7 @@
 #include "../resources/team39_helper.h"
 
 using namespace Eigen;
+using namespace std;
 
 int main(int argc, char* argv[]) {
   if (argc < 2) {
@@ -30,9 +32,6 @@ int main(int argc, char* argv[]) {
 
   // ------------------------------- TASK1 ---------------------------------------
   std::cout << "Image size: " << height << " x " << width << std::endl;
-
-
-  
 
   // ORIGINAL matrix
   MatrixXd original(height, width);
@@ -93,25 +92,67 @@ int main(int argc, char* argv[]) {
   // double norm_w = getArrayEuclideanNorm(w);
 
 
-
   // -------------------------------------- TASK4 --------------------------------------
   
-  
+  // get A1 using convolution operation
+  Matrix3d Hav1;
+  Hav1 << 1.0/12.0,  1.0/12.0,  1.0/12.0,
+      1.0/12.0,  1.0/3.0,  1.0/12.0,
+      1.0/12.0,  1.0/12.0,  1.0/12.0; 
+  SparseMatrix<double> A1;
+
+  A1 = matrix_convolution(Hav1,height,width);
+
+  // print A1 non zero entries
+  cout << "A1 number of non zero entries: " << A1.nonZeros() << std::endl;
   
   
   // -------------------------------------- TASK5 --------------------------------------
   
+  // apply smoothering filter
+    VectorXd smoothing = A1*w;
+
+    Matrix<unsigned char, Dynamic, Dynamic, RowMajor> smoothing_bytes(height,width);
+    for(int i=0; i < height; i++){
+      for(int j=0; j < width; j++) {
+        double val = smoothing[i * width + j];
+        // Applica il clamping tra 0 e 255
+        val = std::min(255.0, std::max(0.0, val));
+        smoothing_bytes(i, j) = static_cast<unsigned char>(std::round(val));
+      }
+    }
   
+  //load_image
+  stbi_write_png("../output/deer_smoothing.png",width,height,1,smoothing_bytes.data(),width);
   
   
   // -------------------------------------- TASK6 --------------------------------------
   
-  
+  // get A2 using convolution operation
+  Matrix3d Hsh1;
+  Hsh1 <<  0.0, -3.0,  0.0,
+          -1.0,  9.0, -3.0,
+           0.0, -1.0,  0.0;
+
+  SparseMatrix<double> A2 = matrix_convolution(Hsh1, height, width);
+  cout << "A2 number of non zero entries: " << A2.nonZeros() << std::endl;
+  std::cout << "Is the matrix A2 symmetric? " << isSymmetric(A2, 1e-12) << std::endl;
   
   
   // -------------------------------------- TASK7 --------------------------------------
   
-  
+   // apply sharpening filter to the original image
+  VectorXd sharpening = A2 * v;
+
+  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> sharpening_bytes(height, width);
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      double val = sharpening[i * width + j];
+      val = std::min(255.0, std::max(0.0, val));
+      sharpening_bytes(i, j) = static_cast<unsigned char>(std::round(val));
+    }
+  }
+  stbi_write_png("../output/deer_sharpening.png", width, height, 1, sharpening_bytes.data(), width);
   
   
   // -------------------------------------- TASK8 --------------------------------------
