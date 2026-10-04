@@ -142,7 +142,6 @@ int main(int argc, char* argv[]) {
   
   // -------------------------------------- TASK7 --------------------------------------
   
-
   // apply sharpening filter to the original image
   VectorXd sharpening = A2 * v;
 
