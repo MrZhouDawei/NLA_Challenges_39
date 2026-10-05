@@ -161,8 +161,27 @@ int main(int argc, char* argv[]) {
   
   // -------------------------------------- TASK9 --------------------------------------
   
+  VectorXd mat_uploaded;
   
-  
+  // how can we upload the vector? (mat_uploaded) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+  /*
+
+   Matrix<unsigned char, Dynamic, Dynamic, RowMajor> sol(height, width);
+
+   for (int i = 0; i < height; ++i) {
+	   int row = i * width;
+	   for (int j = 0; j < width; ++j) {
+		   double val = mat_uploaded(row + j);
+		   double mat_val = std::max(0.0, std::min(255.0, val));
+		   sol(i, j) = static_cast<unsigned char>(std::round(mat_val));
+	   }
+   }
+
+   */
   
   // -------------------------------------- TASK10 --------------------------------------
   
