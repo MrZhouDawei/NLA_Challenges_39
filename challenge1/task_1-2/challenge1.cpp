@@ -139,7 +139,6 @@ int main(int argc, char* argv[]) {
   cout << "A2 number of non zero entries: " << A2.nonZeros() << std::endl;
   std::cout << "Is the matrix A2 symmetric? " << (isSymmetric(A2, 1e-12) ? "Yes" : "No") << std::endl;
   
-  
   // -------------------------------------- TASK7 --------------------------------------
   
   // apply sharpening filter to the original image
