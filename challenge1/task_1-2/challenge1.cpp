@@ -239,8 +239,7 @@ int main(int argc, char* argv[]) {
   lis_vector_destroy(x_lis);  
 
   lis_finalize();
-  
-  
+   
   
   // -------------------------------------- TASK9 --------------------------------------
 
