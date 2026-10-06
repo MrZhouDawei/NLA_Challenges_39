@@ -244,14 +244,6 @@ int main(int argc, char* argv[]) {
   
   // -------------------------------------- TASK9 --------------------------------------
 
-
-  // how can we upload the vector? (mat_uploaded) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-  /*
-
    Matrix<unsigned char, Dynamic, Dynamic, RowMajor> sol(height, width);
 
    for (int i = 0; i < height; ++i) {
@@ -263,7 +255,8 @@ int main(int argc, char* argv[]) {
 	   }
    }
 
-   */
+   stbi_write_png("../output/deer_taks_9.png", width, height, 1, sol.data(), width);
+
   
   // -------------------------------------- TASK10 --------------------------------------
   
