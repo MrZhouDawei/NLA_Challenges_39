@@ -209,16 +209,17 @@ int main(int argc, char* argv[]) {
 
   // create solver
   lis_solver_create(&solver);
+  
   // Use BiCGSTAB as the iterative solver (good for non-symmetric & sparse matrices)
-  // Use ILU as the preconditioner
-  // Use ILU(0), so no additional fill-in is allowed
-  // Set the convergence tolerance to 1e-12
+  
+  // Use ILU as the preconditioner. 
+  // It approximates the LU factorization while preserves the sparsity of the original matrix
+  
+  // ILU(0), doesn't allow additional fill-in
+  
+  // Tolerance = 1e-12
 
-  // Use ILU (Incomplete LU) as a preconditioner.
-  // ILU approximates the LU factorization while preserving sparsity.
 
-  // ILU(0) does not allow additional fill-in.
-  // It keeps the same sparsity pattern as the original matrix.
 
   char options[] = "-i bicgstab -p ilu -ilu_fill 0 -tol 1e-12";
   lis_solver_set_option(options, solver);
@@ -228,7 +229,7 @@ int main(int argc, char* argv[]) {
 
   // Solve the linear system A2 * x = w using the BiCGSTAB iterative solver with ILU preconditioning
   // The solution will be stored in x_lis 
-  // error and iteration count can be retrieved from the solver after the solve operation
+  
   LIS_INT status =lis_solve(A2_lis, w_lis, x_lis, solver);
   if (status != LIS_SUCCESS) {
       std::cerr << "Error: lis_solve failed with status " << status << std::endl;
