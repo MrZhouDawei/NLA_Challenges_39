@@ -1,3 +1,19 @@
+
+// COMMAND TO COMPILE
+
+/*
+
+mpicxx -DUSE_MPI -I${mkEigenInc} -I${mkLisInc} challenge1.cpp -L${mkLisLib} -llis -o challenge1
+
+*/
+
+// COMMAND TO RUN
+/*
+
+mpirun -np 1 ./challenge1 ../resources/deer.jpg
+
+*/
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <unsupported/Eigen/SparseExtra>
