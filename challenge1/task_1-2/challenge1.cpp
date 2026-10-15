@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
   stbi_write_png("../output/deer_smoothing.png",width,height,1,smoothing_bytes.data(),width);
 
   // -------------------------------------- TASK6 --------------------------------------
-
+  
   // get A2 using convolution operation
   Matrix3d Hsh1;
   Hsh1 <<  0.0, -3.0,  0.0,
@@ -138,6 +138,7 @@ int main(int argc, char* argv[]) {
   SparseMatrix<double> A2 = matrix_convolution(Hsh1, height, width);
   cout << "A2 number of non zero entries: " << A2.nonZeros() << std::endl;
   std::cout << "Is the matrix A2 symmetric? " << (isSymmetric(A2, 1e-12) ? "Yes" : "No") << std::endl;
+  
   
   // -------------------------------------- TASK7 --------------------------------------
   
@@ -153,7 +154,8 @@ int main(int argc, char* argv[]) {
     }
   }
   stbi_write_png("../output/deer_sharpening.png", width, height, 1, sharpening_bytes.data(), width);
-
+  
+  
   // -------------------------------------- TASK8 --------------------------------------
   
   saveMarketVector(w, "../output/deer_sharpening.mtx");
@@ -222,6 +224,103 @@ int main(int argc, char* argv[]) {
 
   cout << "BiCGSTAB Iteration count = " << iter << ", final residual = " << residual << std::endl;
 
+
+  //parse the solution from lis vector to Eigen vector
+  VectorXd mat_uploaded(w.size());
+  for (int i = 0; i < w.size(); ++i) {
+      LIS_SCALAR value;
+      lis_vector_get_value(x_lis, i, &value);
+      mat_uploaded[i] = static_cast<double>(value);
+  }
+ // ------- CLEANUP: Free the allocated resources for the solver, matrix, and vectors
+  lis_solver_destroy(solver);
+  lis_matrix_destroy(A2_lis);
+  lis_vector_destroy(w_lis);
+  lis_vector_destroy(x_lis);  
+
+  lis_finalize();
+  
+  
+  
+  // -------------------------------------- TASK9 --------------------------------------
+
+
+  // how can we upload the vector? (mat_uploaded) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+  /*
+
+   Matrix<unsigned char, Dynamic, Dynamic, RowMajor> sol(height, width);
+
+   for (int i = 0; i < height; ++i) {
+	   int row = i * width;
+	   for (int j = 0; j < width; ++j) {
+		   double val = mat_uploaded(row + j);
+		   double mat_val = std::max(0.0, std::min(255.0, val));
+		   sol(i, j) = static_cast<unsigned char>(std::round(mat_val));
+	   }
+   }
+
+   */
+  
+  // -------------------------------------- TASK10 --------------------------------------
+  
+  Matrix3d H3;
+  H3 << -1.0,  0.0,  1.0,
+      -2.0,  0.0,  2.0,
+      -1.0,  0.0,  1.0; 
+
+  SparseMatrix<double> A3 = matrix_convolution(H3, height, width);
+  std::cout << "Is the matrix A3 symmetric? " << (isSymmetric(A3, 1e-12) ? "Yes" : "No") << std::endl;
+
+  // -------------------------------------- TASK11 --------------------------------------
+  
+  VectorXd matrix_3_product = A3 * v;
+
+  MatrixXd matrix_3(height, width);
+  for (int i = 0; i<height; i++){
+	  int row = i * width;
+	  for (int j = 0; j < width; j++){
+        double val = matrix_3_product[row+j];
+        matrix_3(i,j) = std::min(255.0,std::max(0.0,val));
+   }
+  }
+
+  //save image
+  Matrix<unsigned char, Dynamic, Dynamic, RowMajor> matrix_3_bytes(height, width);
+  for (int i = 0; i < height; i++) {
+	  for (int j = 0; j < width; j++) {
+		  matrix_3_bytes(i,j) = static_cast<unsigned char>(std::round(matrix_3(i,j)));
+	  }
+  }
+  stbi_write_png("../output/deer_sobel.png", width, height, 1, matrix_3_bytes.data(),width);
+
+  
+  // -------------------------------------- TASK12 --------------------------------------
+  
+   SparseMatrix<double> I_matrix(A3.rows(), A3.cols());
+  I_matrix.setIdentity();
+
+  SparseMatrix<double> AA = 4.0 * I_matrix + A3;
+  AA.makeCompressed();
+
+  double tol = 1.0e-10;
+  int max_iterations = 500;
+
+  BiCGSTAB<SparseMatrix<double>> bicgstab;
+  bicgstab.setMaxIterations(max_iterations);
+  bicgstab.setTolerance(tol);
+  bicgstab.compute(AA);
+
+  // controllo
+  if (bicgstab.info() != Success) {
+	  std::cout << "BiCGSTAB failed!!!" << std::endl;
+	  return 1;
+  }
+
+  VectorXd y_solution_12 = bicgstab.solve(w);
 
   //parse the solution from lis vector to Eigen vector
   VectorXd mat_uploaded(w.size());
