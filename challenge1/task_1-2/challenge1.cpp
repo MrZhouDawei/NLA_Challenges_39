@@ -1,3 +1,19 @@
+
+// COMMAND TO COMPILE
+
+/*
+
+mpicxx -DUSE_MPI -I${mkEigenInc} -I${mkLisInc} challenge1.cpp -L${mkLisLib} -llis -o challenge1
+
+*/
+
+// COMMAND TO RUN
+/*
+
+mpirun -np 1 ./challenge1 ../resources/deer.jpg
+
+*/
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <unsupported/Eigen/SparseExtra>
@@ -139,6 +155,7 @@ int main(int argc, char* argv[]) {
   cout << "A2 number of non zero entries: " << A2.nonZeros() << std::endl;
   std::cout << "Is the matrix A2 symmetric? " << (isSymmetric(A2, 1e-12) ? "Yes" : "No") << std::endl;
   
+  
   // -------------------------------------- TASK7 --------------------------------------
   
   // apply sharpening filter to the original image
@@ -154,7 +171,7 @@ int main(int argc, char* argv[]) {
   }
   stbi_write_png("../output/deer_sharpening.png", width, height, 1, sharpening_bytes.data(), width);
   
-
+  
   // -------------------------------------- TASK8 --------------------------------------
   
   saveMarketVector(w, "../output/deer_sharpening.mtx");
@@ -192,16 +209,17 @@ int main(int argc, char* argv[]) {
 
   // create solver
   lis_solver_create(&solver);
+  
   // Use BiCGSTAB as the iterative solver (good for non-symmetric & sparse matrices)
-  // Use ILU as the preconditioner
-  // Use ILU(0), so no additional fill-in is allowed
-  // Set the convergence tolerance to 1e-12
+  
+  // Use ILU as the preconditioner. 
+  // It approximates the LU factorization while preserves the sparsity of the original matrix
+  
+  // ILU(0), doesn't allow additional fill-in
+  
+  // Tolerance = 1e-12
 
-  // Use ILU (Incomplete LU) as a preconditioner.
-  // ILU approximates the LU factorization while preserving sparsity.
 
-  // ILU(0) does not allow additional fill-in.
-  // It keeps the same sparsity pattern as the original matrix.
 
   char options[] = "-i bicgstab -p ilu -ilu_fill 0 -tol 1e-12";
   lis_solver_set_option(options, solver);
@@ -211,7 +229,7 @@ int main(int argc, char* argv[]) {
 
   // Solve the linear system A2 * x = w using the BiCGSTAB iterative solver with ILU preconditioning
   // The solution will be stored in x_lis 
-  // error and iteration count can be retrieved from the solver after the solve operation
+  
   LIS_INT status =lis_solve(A2_lis, w_lis, x_lis, solver);
   if (status != LIS_SUCCESS) {
       std::cerr << "Error: lis_solve failed with status " << status << std::endl;
@@ -238,18 +256,9 @@ int main(int argc, char* argv[]) {
   lis_vector_destroy(x_lis);  
 
   lis_finalize();
-  
-  
+   
   
   // -------------------------------------- TASK9 --------------------------------------
-
-
-  // how can we upload the vector? (mat_uploaded) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-  /*
 
    Matrix<unsigned char, Dynamic, Dynamic, RowMajor> sol(height, width);
 
@@ -262,7 +271,8 @@ int main(int argc, char* argv[]) {
 	   }
    }
 
-   */
+   stbi_write_png("../output/deer_taks_9.png", width, height, 1, sol.data(), width);
+
   
   // -------------------------------------- TASK10 --------------------------------------
   
@@ -273,6 +283,9 @@ int main(int argc, char* argv[]) {
 
   SparseMatrix<double> A3 = matrix_convolution(H3, height, width);
   std::cout << "Is the matrix A3 symmetric? " << (isSymmetric(A3, 1e-12) ? "Yes" : "No") << std::endl;
+
+  std::cout << "A3 number of non zero entries: " << A3.nonZeros() << std::endl;
+
 
   // -------------------------------------- TASK11 --------------------------------------
   
@@ -362,3 +375,7 @@ int main(int argc, char* argv[]) {
 mpirun -np 1 ./challenge1 ../resources/deer.jpg
 
 */
+
+
+//--------------------------------------END----------------------------------------
+ 
