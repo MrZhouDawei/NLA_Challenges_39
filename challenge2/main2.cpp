@@ -8,6 +8,7 @@
 #include <random>
 #include <algorithm>
 #include <cmath>
+#include <Eigen/SVD>
 // #include <lis.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -17,14 +18,14 @@
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
-   	std::cerr << "Usage: " << argv[0] << " <image_path>" << std::endl;
+   	std::cout << "Usage: " << argv[0] << " <image_path>" << std::endl;
     	return 1;
   }	
 
 
 	//----------------------------------------------TASK 1-----------------------------------------
 	
-    	const char* image_path = argv[1];
+	const char* image_path = argv[1];
 	int width = 0;
     	int height = 0;
     	int channels = 0;
@@ -99,21 +100,80 @@ int main(int argc, char* argv[]) {
 	//----------------------------------------------TASK 5-----------------------------------------
 	
 	
-	
-	
+	// Singular Value Decomposition of A
+	Eigen::BDCSVD<Eigen::MatrixXd> svd(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
+	Eigen::VectorXd singular_values = svd.singularValues();
+
+	// NOTE: Frobenius noem of SIGMA
+	double norm_SIGMA = singular_values.norm();
+	std::cout << "Frobenius norm of diagonal matrix SIGMA: " << norm_SIGMA << std::endl;
 	
 	
 	//----------------------------------------------TASK 6-----------------------------------------
 	
-	
-	
-	
+	Eigen::MatrixXd U = svd.matrixU();
+	Eigen::MatrixXd V = svd.matrixV();
+
+	// k = 30
+	Eigen::MatrixXd C30(U.rows(), 30);
+	Eigen::MatrixXd D30(V.rows(), 30);
+
+	for (int i = 0; i<30; i++){
+		C30.col(i) = U.col(i);
+		D30.col(i) = singular_values[i] * V.col(i);
+	}
+
+	long nnz_C30 = (C30.array() != 0.0).count();
+	long nnz_D30 = (D30.array() != 0.0).count();
+
+	std::cout << "nnz(C with k = 30) = " << nnz_C30 << std::endl;
+	std::cout << "nnz(D with k = 30) = " << nnz_D30 << std::endl;
+
+	//k = 90	
+	Eigen::MatrixXd C90(U.rows(), 90);
+	Eigen::MatrixXd D90(V.rows(), 90);
+
+	for (int i = 0; i < 90; i++) {
+	     	C90.col(i) = U.col(i);
+	    	D90.col(i) = singular_values[i] * V.col(i);
+	}
+	long nnz_C90 = (C90.array() != 0.0).count();
+	long nnz_D90 = (D90.array() != 0.0).count();
+
+	std::cout << "nnz(C with k = 90) = " << nnz_C90 << std::endl;
+	std::cout << "nnz(D with k = 90) = " << nnz_D90 << std::endl;
 	
 	//----------------------------------------------TASK 7-----------------------------------------
 	
+	Eigen::MatrixXd A_new_30 = C30 * D30.transpose();
+	Eigen::MatrixXd A_new_90 = C90 * D90.transpose();
 	
-	
-	
+	std::vector<unsigned char> img30(m * n);
+	std::vector<unsigned char> img90(m * n);
+
+	// k = 30
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			double val30 = A_new_30(i, j);
+			val30 = std::max(0.0, std::min(255.0, val30));
+		       	img30[i * n + j] = static_cast<unsigned char>(val30);
+	       	}
+      	}
+	stbi_write_png("output2/deer_task7_k30.png", width, height, 1, img30.data(), width);
+
+
+	// k = 90
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+		       double val90 = A_new_90(i, j);
+		       val90 = std::max(0.0, std::min(255.0, val90));
+		       img90[i * n + j] = static_cast<unsigned char>(val90);
+		}
+	}
+	stbi_write_png("output2/deer_task7_k90.png", width, height, 1, img90.data(), width);
+    
+
+
 	
 	//----------------------------------------------TASK 8-----------------------------------------
 	
