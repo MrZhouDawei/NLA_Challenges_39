@@ -16,6 +16,9 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "resources2/stb_image_write.h"
 
+using namespace Eigen;
+
+
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
    	std::cout << "Usage: " << argv[0] << " <image_path>" << std::endl;
@@ -177,14 +180,57 @@ int main(int argc, char* argv[]) {
 	
 	//----------------------------------------------TASK 8-----------------------------------------
 	
-	
+	const int dim = 400;
+	const int blocks_per_row = 10; 
+	const int block_size = dim / blocks_per_row;
 
+	Eigen::MatrixXd A_checker(dim, dim);
+
+	for (int i = 0; i < dim; i++) {
+	      	int block_row = i / block_size;
+	       	for (int j = 0; j < dim; j++) {
+			int block_col = j / block_size;
+			if ((block_row + block_col) % 2 == 0) {
+				//black block
+			      	A_checker(i, j) = 0.0;
+			} else {
+				// white block
+				A_checker(i, j) = 255.0;
+			}
+	       	}
+	}
+
+	// Froenius norm
+	double norm_checker = A_checker.norm();
+	
+	std::cout << "Euclidean norm of checkerboard matrix: " << norm_checker << std::endl;
 
 
 	//----------------------------------------------TASK 9-----------------------------------------
 	
-	
-	
+
+	// NOISY matix
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<double> dist(-60.0, 60.0);
+  
+	Eigen::MatrixXd noisy(dim, dim);
+  
+	for (int i = 0; i < dim; i++){
+	      	for (int j = 0; j < dim; j++) {
+	      		double new_val = A_checker(i,j) + dist(gen);
+	      		noisy(i,j) = std::min(std::max(new_val, 0.0), 255.0); 
+		}
+       	}
+
+	// export the NOISY matrix
+	Eigen::Matrix<unsigned char, Dynamic, Dynamic, RowMajor> noisy_bytes(dim, dim);
+       	for (int i = 0; i < dim; i++) {
+	       	for (int j = 0; j < dim; j++) {
+		      	noisy_bytes(i, j) = static_cast<unsigned char>(std::round(noisy(i, j)));
+	       	}
+       	}
+       	stbi_write_png("output2/noisy_checkerboard.png", dim, dim, 1, noisy_bytes.data(), dim);
 	
 	
 	//----------------------------------------------TASK 10-----------------------------------------
