@@ -234,17 +234,46 @@ int main(int argc, char* argv[]) {
 	
 	
 	//----------------------------------------------TASK 10-----------------------------------------
-	
-	
-	
-	
-	
+
+
+	// Singular Value Decomposition of the NOISY matrix
+	Eigen::BDCSVD<Eigen::MatrixXd> svd_noisy(noisy, Eigen::ComputeThinU | Eigen::ComputeThinV);
+	Eigen::VectorXd singular_values_noisy = svd_noisy.singularValues();
+
+	std::cout << "1st largest singular value of noisy matrix: " << singular_values_noisy[0] << std::endl;
+	std::cout << "2nd largest singular value of noisy matrix: " << singular_values_noisy[1] << std::endl;
+
+
 	//----------------------------------------------TASK 11-----------------------------------------
-	
-	
-	
-	
-	
+
+	Eigen::MatrixXd U_noisy = svd_noisy.matrixU();
+	Eigen::MatrixXd V_noisy = svd_noisy.matrixV();
+
+	// k = 6
+	Eigen::MatrixXd C6(U_noisy.rows(), 6);
+	Eigen::MatrixXd D6(V_noisy.rows(), 6);
+
+	for (int i = 0; i < 6; i++){
+		C6.col(i) = U_noisy.col(i);
+		D6.col(i) = singular_values_noisy[i] * V_noisy.col(i);
+	}
+
+	std::cout << "Size of C with k = 6: " << C6.rows() << " x " << C6.cols() << std::endl;
+	std::cout << "Size of D with k = 6: " << D6.rows() << " x " << D6.cols() << std::endl;
+
+	// k = 12
+	Eigen::MatrixXd C12(U_noisy.rows(), 12);
+	Eigen::MatrixXd D12(V_noisy.rows(), 12);
+
+	for (int i = 0; i < 12; i++){
+		C12.col(i) = U_noisy.col(i);
+		D12.col(i) = singular_values_noisy[i] * V_noisy.col(i);
+	}
+
+	std::cout << "Size of C with k = 12: " << C12.rows() << " x " << C12.cols() << std::endl;
+	std::cout << "Size of D with k = 12: " << D12.rows() << " x " << D12.cols() << std::endl;
+
+
 	//----------------------------------------------TASK 12-----------------------------------------
 	
 	
