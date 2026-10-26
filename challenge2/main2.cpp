@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <Eigen/SVD>
-// #include <lis.h>
+#include <lis.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "resources2/stb_image.h"
@@ -90,16 +90,105 @@ int main(int argc, char* argv[]) {
 	
 	//----------------------------------------------TASK 3-----------------------------------------
 	
+	Eigen::SparseMatrix<double> ATA_sparse = ATA.sparseView();
+
+	saveMarket(ATA_sparse, "output2/ATA.mtx");
+
+	LIS_MATRIX ATA_lis;
+	LIS_VECTOR x_lis;
+	LIS_ESOLVER esolver;
+
+	lis_initialize(&argc, &argv);
+
+	lis_matrix_create(LIS_COMM_WORLD, &ATA_lis);
+	lis_matrix_set_size(ATA_lis, 0, ATA.rows());
+	lis_matrix_set_type(ATA_lis, LIS_MATRIX_CSR);
+
+	for (int i = 0; i < ATA.rows(); ++i) {
+		for (int j = 0; j < ATA.cols(); ++j) {
+			if (ATA(i,j) != 0.0) {
+				lis_matrix_set_value(LIS_INS_VALUE,i,j,ATA(i,j),ATA_lis);
+			}
+		}
+	}
+
+	lis_matrix_assemble(ATA_lis);
+
+	lis_vector_duplicate(ATA_lis, &x_lis);
+
+
+// Use Power Iteration with tolerance 1e-10
+	lis_esolver_create(&esolver);
+
+	char options_task3[] = "-e pi -etol 1e-10";
+	lis_esolver_set_option(options_task3, esolver);
+
+	LIS_SCALAR eigenvalue_lis;
+
+	lis_esolve(
+		ATA_lis,
+		x_lis,
+		&eigenvalue_lis,
+		esolver
+	);
+	LIS_INT iter_task3;
+    LIS_REAL residual_task3;
+
+    lis_esolver_get_iter(esolver, &iter_task3);
+    lis_esolver_get_residualnorm(esolver, &residual_task3);
+
+    std::cout << "Iterations without shift = " << iter_task3 << std::endl;
+    std::cout << "Residual without shift = " << residual_task3 << std::endl;
+
+	std::cout << "Largest eigenvalue with LIS: " << eigenvalue_lis << std::endl;
+	std::cout << "Largest eigenvalue with Eigen: " << lambda_max1 << std::endl;
+	
+	// ---------------------------------------------- TASK 4 -----------------------------------------
+
+	LIS_ESOLVER esolver_shift;
+	LIS_VECTOR x_shift;
+	LIS_SCALAR eigenvalue_shift;
+
+	lis_vector_duplicate(ATA_lis, &x_shift);
+	lis_esolver_create(&esolver_shift);
+
+	// Shift value
+	double mu = 0.5 * lambda_max2;
+
+	std::string opts = "-e pi -etol 1e-10 -shift " + std::to_string(mu);
+
+	std::vector<char> opts_char(opts.begin(), opts.end());
+	opts_char.push_back('\0');
+
+	lis_esolver_set_option(opts_char.data(), esolver_shift);
+
+	lis_esolve(
+		ATA_lis,
+		x_shift,
+		&eigenvalue_shift,
+		esolver_shift
+	);
+
+	LIS_INT iter_shift;
+	LIS_REAL residual_shift;
+
+	lis_esolver_get_iter(esolver_shift, &iter_shift);
+	lis_esolver_get_residualnorm(esolver_shift, &residual_shift);
+
+	std::cout << "Shift mu = " << mu << std::endl;
+	std::cout << "Residual with shift = " << residual_shift << std::endl;
+	std::cout << "Iterations with shift = " << iter_shift << std::endl;
 	
 	
-	
-	
-	//----------------------------------------------TASK 4-----------------------------------------
-	
-	
-	
-	
-	
+	lis_esolver_destroy(esolver);
+	lis_esolver_destroy(esolver_shift);
+
+	lis_vector_destroy(x_lis);
+	lis_vector_destroy(x_shift);
+
+	lis_matrix_destroy(ATA_lis);
+
+	lis_finalize();
 	//----------------------------------------------TASK 5-----------------------------------------
 	
 	
@@ -275,10 +364,45 @@ int main(int argc, char* argv[]) {
 
 
 	//----------------------------------------------TASK 12-----------------------------------------
+	// Reconstruct the noisy checkerboard using truncated SVD.
+	// k = 6 keeps fewer singular components and gives stronger compression.
+	// k = 12 keeps more information and should be closer to the original image.
 	
+	Eigen::MatrixXd checker_k6 = C6 * D6.transpose();
+	Eigen::MatrixXd checker_k12 = C12 * D12.transpose();
+
+	Eigen::Matrix<unsigned char, Dynamic, Dynamic, RowMajor> checker6_bytes(dim, dim);
+	Eigen::Matrix<unsigned char, Dynamic, Dynamic, RowMajor> checker12_bytes(dim, dim);
 	
-	
-	
+	for(int i = 0; i < dim; ++i) {
+		for(int j = 0; j < dim; ++j) {
+			double val =checker_k6(i, j);
+			val = std::max(0.0, std::min(255.0, val));
+			checker6_bytes(i, j) = static_cast<unsigned char>(std::round(val));
+		}
+	}
+
+	for(int i = 0; i < dim; ++i) {
+		for(int j = 0; j < dim; ++j) {
+			double val = checker_k12(i, j);
+			val = std::max(0.0, std::min(255.0, val));
+			checker12_bytes(i, j) = static_cast<unsigned char>(std::round(val));
+		}
+	}
+
+	stbi_write_png(
+		"output2/checker_k6.png",
+		dim, dim, 1,
+		checker6_bytes.data(),
+		dim
+	);
+
+	stbi_write_png(
+		"output2/checker_k12.png",
+		dim, dim, 1,
+		checker12_bytes.data(),
+		dim
+	);
 	
 	//----------------------------------------------TASK 13-----------------------------------------
 
